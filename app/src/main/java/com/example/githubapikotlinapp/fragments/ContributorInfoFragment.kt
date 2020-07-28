@@ -17,7 +17,7 @@ import com.example.githubapikotlinapp.R
  * **/
 
 
-class ContributorInfoFragment : Fragment() {
+class ContributorInfoFragment(private val contributorInfo:ContributorData) : Fragment() {
 
 
     override fun onCreateView(
