@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.githubapikotlinapp.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_contributorInfoFragment"
+            app:destination="@id/contributorInfoFragment" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/contributorInfoFragment"
+        android:name="com.example.githubapikotlinapp.fragments.ContributorInfoFragment"
+        android:label="ContributorInfoFragment"
+        tools:layout="@layout/fragment_contributor_info">
+        <argument android:name="contributorInfo"
+            app:argType="com.example.githubapikotlinapp.fragments.ContributorData" />
+        <argument
+            android:name="transitionNames"
+            app:argType="string" />
+    </fragment>
+
+</navigation>

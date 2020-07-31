@@ -6,14 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.FragmentManager
+import androidx.core.view.doOnPreDraw
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.example.githubapikotlinapp.R
 import com.example.githubapikotlinapp.RequestGitHubAPI
-import com.example.githubapikotlinapp.adapters.ContributorsListController
-import kotlinx.android.synthetic.main.activity_main.*
+import com.example.githubapikotlinapp.adapters.ContributorsEpoxyController
+import com.google.android.material.transition.platform.MaterialElevationScale
+import kotlinx.android.synthetic.main.epoxy_cell_contributors.view.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.Serializable
 
 
 /**
@@ -30,10 +34,13 @@ data class ContributorData(
     val avatarURL: String,
     val gitHubURL: String,
     val organizationAPI_URL: String?,
-    val contributions :Int
-)
+    val contributions: Int
+) : Serializable
+
 
 class HomeFragment : Fragment() {
+    private var contributorsList: MutableList<ContributorData> = mutableListOf()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,49 +54,58 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
 
-        /** APIにリクエストを送り、取得結果をviewに反映 **/
-        val requestGitHubAPI = RequestGitHubAPI()
-        val contributorsList: MutableList<ContributorData> = mutableListOf()
-        requestGitHubAPI.setRequestAPIListener(object : RequestGitHubAPI.OnRequestAPI {
-            override fun onPreRequestAPI() {
-                // API リクエスト送る前
-                apiProgressBar.visibility = View.VISIBLE
-            }
-
-            override fun onSucceedRequestAPI(jsonArray: JSONArray) {
-                // APIリクエスト成功時
-                for (i in 0 until jsonArray.length()) {
-                    val jsonObject = JSONObject(jsonArray[i].toString())
-                    contributorsList.add(
-                        jsonObject.run {
-                            ContributorData(
-                                getString("login"),
-                                getString("avatar_url"),
-                                getString("url"),
-                                getString("organizations_url"),
-                                getInt("contributions")
-                            )
-                        }
-
-                    )
+//        if (contributorsList == mutableListOf<ContributorData>()) {
+        if (false) {
+            // 起動時のみにAPIリクエスト送信
+            /** APIにリクエストを送り、取得結果をviewに反映 **/
+            val requestGitHubAPI = RequestGitHubAPI()
+            requestGitHubAPI.setRequestAPIListener(object : RequestGitHubAPI.OnRequestAPI {
+                override fun onPreRequestAPI() {
+                    // API リクエスト送る前
+                    apiProgressBar.visibility = View.VISIBLE
                 }
 
-                apiProgressBar.visibility = View.GONE  //プログレス非表示
-                /** APIの取得が完了したらEpoxyRecyclerViewを生成する **/
-                renderEpoxyRecyclerView(contributorsList)
-            }
+                override fun onSucceedRequestAPI(jsonArray: JSONArray) {
+                    // APIリクエスト成功時
+                    for (i in 0 until jsonArray.length()) {
+                        val jsonObject = JSONObject(jsonArray[i].toString())
+                        contributorsList.add(
+                            jsonObject.run {
+                                ContributorData(
+                                    getString("login"),
+                                    getString("avatar_url"),
+                                    getString("url"),
+                                    getString("organizations_url"),
+                                    getInt("contributions")
+                                )
+                            }
+                        )
+                    }
 
-            override fun onFailedRequestAPI(errorCode: Int, errorMsg: String) {
-                // APIリクエスト失敗時
-                Toast.makeText(
-                    context,
-                    "ERROR_CODE: $errorCode ; \n ERROR: $errorMsg",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        })
-        requestGitHubAPI.execute()
+                    apiProgressBar.visibility = View.GONE  //プログレス非表示
+                    /** APIの取得が完了したらEpoxyRecyclerViewを生成する **/
+                    renderEpoxyRecyclerView(contributorsList)
+                }
+
+                override fun onFailedRequestAPI(errorCode: Int, errorMsg: String) {
+                    // APIリクエスト失敗時
+                    Toast.makeText(
+                        context,
+                        "ERROR_CODE: $errorCode ; \n ERROR: $errorMsg",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            })
+//            requestGitHubAPI.execute()
+        } else {
+            // バックスタックからの復元時
+            apiProgressBar.visibility = View.GONE  //プログレス非表示
+            /** APIの取得が完了したらEpoxyRecyclerViewを生成する **/
+            renderEpoxyRecyclerView(contributorsList)
+        }
 
         /** APIにリクエストを送り、取得結果をviewに反映   ------------- END ----------  **/
     }
@@ -98,28 +114,50 @@ class HomeFragment : Fragment() {
     /** EpoxyRecyclerViewの生成
      * @param listData : EpoxyRecyclerViewで表示するリストデータ
      * **/
-    private fun renderEpoxyRecyclerView(listData: MutableList<ContributorData>){
-        val controller = ContributorsListController(context!!)
+    private fun renderEpoxyRecyclerView(listData: MutableList<ContributorData>) {
+        val controller = ContributorsEpoxyController(requireContext())
         contributorsRecyclerView.adapter = controller.adapter
         controller.setData(listData)
 
         //リストのアイテムクリック時
-        controller.setOnItemClickListener(object : ContributorsListController.OnClickListener {
-            override fun setContributorClickListener(position: Int) {
-                Toast.makeText(context!!, "クリック : $position", Toast.LENGTH_SHORT).show()
+        controller.setOnItemClickListener(object : ContributorsEpoxyController.OnClickListener {
 
-                //詳細画面へ遷移
-                val fragment = ContributorInfoFragment(listData[position])
-                val fm = fragmentManager
-                fm?.apply {
-                    beginTransaction()
-                        .addToBackStack(null)
-                        .hide(this@HomeFragment)   // replaceすると戻ってきたときに再びAPIリクを送ってしまう
-                        .add(R.id.container,fragment)
-                        .commit()
+            override fun setContributorClickListener(
+                position: Int,
+                clickedView: View
+            ) {
+                // アニメーション時に対称コンテナ以外を残したままにする
+                exitTransition = MaterialElevationScale(false).apply {
+                    duration = resources.getInteger(R.integer.duration).toLong()
                 }
-            }
+                reenterTransition = MaterialElevationScale(true).apply {
+                    duration = resources.getInteger(R.integer.duration).toLong()
+                }
 
+                // Navigation使って詳細画面へ遷移、パラメータをsafe argsで送る
+                val navController = clickedView.findNavController()
+                val test = ContributorData(
+                    "USER NAME",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTRPqzYzWvyplA5Bf-ZZgCWyUeQw36uxO0JOQ&usqp=CAU",
+                    "",
+                    "",
+                    10
+                )
+                // safe args クリックしたcontributorの情報とtransitionName属性名
+                val action = HomeFragmentDirections
+                    .actionHomeFragmentToContributorInfoFragment(
+//                        listData[position],
+                        test,
+                        clickedView.cardView.transitionName
+                    )
+                // 共有要素
+                val extras = FragmentNavigatorExtras(
+                    clickedView.cardView to clickedView.cardView.transitionName
+                )
+                // navControllerで共有要素での画面遷移
+                navController.navigate(action, extras)
+            }
         })
     }
+
 }
