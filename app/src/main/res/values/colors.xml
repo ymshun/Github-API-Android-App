@@ -5,7 +5,7 @@
     <color name="colorAccent">#03DAC5</color>
 
     <color name="grayAlpha">#4DA1A1A1</color>
-    <color name="blueBackground">#B9DBE8E9</color>
+    <color name="blueBackground">#CCDBE8E9</color>
 
-    <color name="clickableBackground">#33737373</color>
+    <color name="clickableBackground">#26A1A1A1</color>
 </resources>

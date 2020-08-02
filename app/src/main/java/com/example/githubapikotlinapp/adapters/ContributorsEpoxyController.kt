@@ -2,6 +2,8 @@ package com.example.githubapikotlinapp.adapters
 
 import android.content.Context
 import android.view.View
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.airbnb.epoxy.TypedEpoxyController
 import com.bumptech.glide.Glide
 import com.example.githubapikotlinapp.contributors
@@ -34,38 +36,13 @@ class ContributorsEpoxyController(private val context: Context) :
     override fun buildModels(listData: MutableList<ContributorData>?) {
         listData ?: return
 
-//        for (contributor in listData) {
-//            contributors {
-//                /** R.layout.epoxy_cell_contributorsのビューモデル **/
-//
-//                onBind { model, view, position ->
-//                    // glideでURL画像の読み込み
-////                    Glide.with(context).load(contributor.avatarURL).circleCrop()
-////                        .into(view.dataBinding.root.avatarImg)
-//                }
-//                val avatarID = "avatarImgTransitionName$modelCountBuiltSoFar"
-//                val nameID = "contributorTransitionName$modelCountBuiltSoFar"
-//                val layoutID = "contributorLayoutTransitionName$modelCountBuiltSoFar"
-//
-//                id(modelCountBuiltSoFar)
-//                avatarImgTransitionName(avatarID)
-//                contributorTransitionName(nameID)
-//                contributorLayoutTransitionName(layoutID)
-//                contributorName(contributor.userName)
-//
-//                clickListener { model, parentView, clickedView, position ->
-//                    listener.setContributorClickListener(
-//                        position,
-//                        clickedView,
-//                        avatarID,
-//                        nameID,
-//                        layoutID
-//                    )
-//                }
-//            }
-//        }
+        // loading placeholderの生成
+        val circularProgressDrawable = CircularProgressDrawable(context)
+        circularProgressDrawable.strokeWidth = 5f
+        circularProgressDrawable.centerRadius = 30f
+        circularProgressDrawable.start()
 
-        for (contributor in 0..45) {
+        for (contributor in listData) {
             contributors {
                 /** R.layout.epoxy_cell_contributorsのビューモデル **/
                 // viewの transitionNameにセットする一意のIDを生成
@@ -73,9 +50,7 @@ class ContributorsEpoxyController(private val context: Context) :
 
                 onBind { model, view, position ->
                     // glideでURL画像の読み込み
-//                    Glide.with(context).load(contributor.avatarURL).circleCrop()
-//                        .into(view.dataBinding.root.avatarImg)
-                    Glide.with(context).load("https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTRPqzYzWvyplA5Bf-ZZgCWyUeQw36uxO0JOQ&usqp=CAU").circleCrop()
+                    Glide.with(context).load(contributor.avatarURL).circleCrop().placeholder(circularProgressDrawable)
                         .into(view.dataBinding.root.avatarImg)
                 }
 
@@ -83,9 +58,10 @@ class ContributorsEpoxyController(private val context: Context) :
                 // 一意なtransitionName属性を設定
                 cardViewTransName(uniqueTransName)
 
-                contributorName("USER NAME")
+                contributorName(contributor.userLoginName)
 
                 clickListener { model, parentView, clickedView, position ->
+                    // クリックして詳細画面へ
                     listener.setContributorClickListener(
                         position,
                         clickedView

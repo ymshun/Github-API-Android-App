@@ -9,8 +9,9 @@ import android.widget.Toast
 import androidx.core.view.doOnPreDraw
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.example.githubapikotlinapp.R
-import com.example.githubapikotlinapp.RequestGitHubAPI
+import com.example.githubapikotlinapp.api.GetContributorListAPI
 import com.example.githubapikotlinapp.adapters.ContributorsEpoxyController
 import com.google.android.material.transition.platform.MaterialElevationScale
 import kotlinx.android.synthetic.main.epoxy_cell_contributors.view.*
@@ -30,11 +31,13 @@ import java.io.Serializable
  * **/
 
 data class ContributorData(
-    val userName: String,
-    val avatarURL: String,
-    val gitHubURL: String,
-    val organizationAPI_URL: String?,
-    val contributions: Int
+    val userLoginName: String,  // contributorのログインネーム
+    val avatarURL: String,      // アバター画像URL
+    val detailUserInfoAPI_URL:String,    // ユーザーの詳細情報取得API
+    val gitHubURL: String,          // ユーザーのgithubページのURL
+    val followersAPI_URL :String,       // フォロワー情報取得API
+    val organizationAPI_URL: String,   //organizationの情報取得API
+    val contributions: Int          // contributions
 ) : Serializable
 
 
@@ -57,12 +60,13 @@ class HomeFragment : Fragment() {
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
 
-//        if (contributorsList == mutableListOf<ContributorData>()) {
-        if (false) {
+        if (contributorsList == mutableListOf<ContributorData>()) {
+//        if (false) {
             // 起動時のみにAPIリクエスト送信
             /** APIにリクエストを送り、取得結果をviewに反映 **/
-            val requestGitHubAPI = RequestGitHubAPI()
-            requestGitHubAPI.setRequestAPIListener(object : RequestGitHubAPI.OnRequestAPI {
+            val requestGitHubAPI =
+                GetContributorListAPI("https://api.github.com/repos/googlesamples/android-architecture-components/contributors")
+            requestGitHubAPI.setRequestAPIListener(object : GetContributorListAPI.OnRequestAPI {
                 override fun onPreRequestAPI() {
                     // API リクエスト送る前
                     apiProgressBar.visibility = View.VISIBLE
@@ -72,12 +76,15 @@ class HomeFragment : Fragment() {
                     // APIリクエスト成功時
                     for (i in 0 until jsonArray.length()) {
                         val jsonObject = JSONObject(jsonArray[i].toString())
+                        // JSONArrayのキーからデータを抽出
                         contributorsList.add(
                             jsonObject.run {
                                 ContributorData(
                                     getString("login"),
                                     getString("avatar_url"),
                                     getString("url"),
+                                    getString("html_url"),
+                                    getString("followers_url"),
                                     getString("organizations_url"),
                                     getInt("contributions")
                                 )
@@ -99,7 +106,7 @@ class HomeFragment : Fragment() {
                     ).show()
                 }
             })
-//            requestGitHubAPI.execute()
+            requestGitHubAPI.execute()
         } else {
             // バックスタックからの復元時
             apiProgressBar.visibility = View.GONE  //プログレス非表示
@@ -115,6 +122,8 @@ class HomeFragment : Fragment() {
      * @param listData : EpoxyRecyclerViewで表示するリストデータ
      * **/
     private fun renderEpoxyRecyclerView(listData: MutableList<ContributorData>) {
+
+
         val controller = ContributorsEpoxyController(requireContext())
         contributorsRecyclerView.adapter = controller.adapter
         controller.setData(listData)
@@ -136,18 +145,11 @@ class HomeFragment : Fragment() {
 
                 // Navigation使って詳細画面へ遷移、パラメータをsafe argsで送る
                 val navController = clickedView.findNavController()
-                val test = ContributorData(
-                    "USER NAME",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTRPqzYzWvyplA5Bf-ZZgCWyUeQw36uxO0JOQ&usqp=CAU",
-                    "",
-                    "",
-                    10
-                )
+
                 // safe args クリックしたcontributorの情報とtransitionName属性名
                 val action = HomeFragmentDirections
                     .actionHomeFragmentToContributorInfoFragment(
-//                        listData[position],
-                        test,
+                        listData[position],
                         clickedView.cardView.transitionName
                     )
                 // 共有要素

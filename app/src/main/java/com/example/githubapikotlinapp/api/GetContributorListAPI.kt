@@ -1,4 +1,4 @@
-package com.example.githubapikotlinapp
+package com.example.githubapikotlinapp.api
 
 import android.os.AsyncTask
 import org.json.JSONArray
@@ -16,17 +16,18 @@ import java.net.URL
  * **/
 
 
-class RequestGitHubAPI() : AsyncTask<String, String, String>() {
+class GetContributorListAPI(private val API_URL:String?) : AsyncTask<String, String, String>() {
 
-    // APIのエンドポイント
-    private val API_URL =
-        "https://api.github.com/repos/googlesamples/android-architecture-components/contributors"
 
+    // リスナ
     private lateinit var listener: OnRequestAPI
 
     // エラーコード変数
     private var statusCode: Int? = null
     private var statusMsg: String? = null
+
+    // github token
+    private val MY_TOKEN = "e1c59981c9ae28215d25208681bdbbc60d5892a6"
 
 
     interface OnRequestAPI {
@@ -56,13 +57,14 @@ class RequestGitHubAPI() : AsyncTask<String, String, String>() {
     // バックグラウンドスレッド処理
     override fun doInBackground(vararg params: String?): String? {
 
-        // URLオブジェクト生成してHTTPコネクション
-        val url = URL(API_URL)
-        val connection = url.openConnection() as HttpURLConnection
-        val stream: InputStream?
         var result: String?
-
         try {
+            // URLオブジェクト生成してHTTPコネクション
+            val url = URL(API_URL)
+            val connection = url.openConnection() as HttpURLConnection
+            val stream: InputStream?
+            // auth認証(無しでも行けるが回数制限がきつい)
+            connection.setRequestProperty("Authorization",MY_TOKEN)
             connection.connect()
 
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
@@ -87,7 +89,6 @@ class RequestGitHubAPI() : AsyncTask<String, String, String>() {
             statusCode = error.hashCode()
             statusMsg = error.message
         }
-
 
         return result
     }

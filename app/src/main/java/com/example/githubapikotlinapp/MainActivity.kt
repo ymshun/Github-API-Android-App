@@ -15,17 +15,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        setSupportActionBar(toolbar)
-//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//        supportActionBar?.setHomeButtonEnabled(true)
+        // fragment遷移はNavigationで定義
 
-
-        // home フラグメントを表示
-//        val fragment = HomeFragment()
-//        val fm = supportFragmentManager
-//        fm.beginTransaction()
-//            .replace(R.id.container, fragment)
-//            .commit()
     }
-
 }
