@@ -23,8 +23,7 @@ import org.json.JSONObject
 /**
  * 選択したContributorの情報を表示するフラグメント
  * HomeFragmentから遷移してくる
- *
- * @param:
+ * Safe argsでクリックしたcontributorのinfoを受け取る
  *
  * @author: Yamashita 2020/7/26
  * **/
@@ -96,6 +95,7 @@ class ContributorInfoFragment() : Fragment() {
         controller!!.setEpoxyListener(object : DetailEpoxyController.OnEpoxyClickListener {
 
             override fun setOnEpoxyClickListener(url: String) {
+                //epoxyクリックで GitHubのブラウザを開く
                 showCustomTabs(url)
             }
         })
@@ -232,7 +232,7 @@ class ContributorInfoFragment() : Fragment() {
             )
         )
 
-        progressBarDetail.visibility = View.INVISIBLE
+        progressBarDetail?.visibility = View.INVISIBLE
         // epoxyに反映
         controller!!.setData(detailList, detailList2)
     }

@@ -36,12 +36,6 @@ class ContributorsEpoxyController(private val context: Context) :
     override fun buildModels(listData: MutableList<ContributorData>?) {
         listData ?: return
 
-        // loading placeholderの生成
-        val circularProgressDrawable = CircularProgressDrawable(context)
-        circularProgressDrawable.strokeWidth = 5f
-        circularProgressDrawable.centerRadius = 30f
-        circularProgressDrawable.start()
-
         for (contributor in listData) {
             contributors {
                 /** R.layout.epoxy_cell_contributorsのビューモデル **/
@@ -49,12 +43,19 @@ class ContributorsEpoxyController(private val context: Context) :
                 val uniqueTransName = "cardViewTransName$modelCountBuiltSoFar"
 
                 onBind { model, view, position ->
+                    // loading placeholderの生成
+                    val circularProgressDrawable = CircularProgressDrawable(context)
+                    circularProgressDrawable.strokeWidth = 5f
+                    circularProgressDrawable.centerRadius = 30f
+                    circularProgressDrawable.start()
+
                     // glideでURL画像の読み込み
                     Glide.with(context).load(contributor.avatarURL).circleCrop().placeholder(circularProgressDrawable)
                         .into(view.dataBinding.root.avatarImg)
                 }
 
                 id(modelCountBuiltSoFar)
+
                 // 一意なtransitionName属性を設定
                 cardViewTransName(uniqueTransName)
 

@@ -24,7 +24,7 @@ class DetailEpoxyController(private val context: Context) :
         fun setOnEpoxyClickListener(url: String)
     }
 
-
+    // stickyヘッダーを実装
     override fun isStickyHeader(position: Int): Boolean {
         val viewModel = this.adapter.getModelAtPosition(position)
         return viewModel is DetailHeaderBindingModel_

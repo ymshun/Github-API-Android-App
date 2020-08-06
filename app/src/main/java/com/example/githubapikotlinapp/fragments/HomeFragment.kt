@@ -25,8 +25,6 @@ import java.io.Serializable
  * ホームフラグメント(MainActivity起動と同時に遷移)
  * Contributorのリストを表示するフラグメント
  *
- * @param
- *
  * @author Yamashita 2020/7/26
  * **/
 
@@ -57,6 +55,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 画面のレンダリングを待ってから共有要素遷移(遷移先のフラグメントから戻ってきたときに有効)
         postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
 
@@ -123,7 +122,6 @@ class HomeFragment : Fragment() {
      * **/
     private fun renderEpoxyRecyclerView(listData: MutableList<ContributorData>) {
 
-
         val controller = ContributorsEpoxyController(requireContext())
         contributorsRecyclerView.adapter = controller.adapter
         controller.setData(listData)
@@ -131,6 +129,7 @@ class HomeFragment : Fragment() {
         //リストのアイテムクリック時
         controller.setOnItemClickListener(object : ContributorsEpoxyController.OnClickListener {
 
+            // クリックでNavigation使って画面遷移
             override fun setContributorClickListener(
                 position: Int,
                 clickedView: View
