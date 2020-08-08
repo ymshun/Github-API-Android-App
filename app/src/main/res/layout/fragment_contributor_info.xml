@@ -1,64 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/contributorInfoLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:fitsSystemWindows="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <data>
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:minHeight="?attr/actionBarSize"
-            app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-            app:toolbarId="@+id/toolbar">
+        <variable
+            name="transitionName"
+            type="String" />
 
-            <ImageView
-                android:id="@+id/contributorLgImg"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:adjustViewBounds="true"
-                android:background="@android:color/white"
-                android:scaleType="centerCrop"
-                android:src="@android:drawable/sym_def_app_icon"
-                app:layout_collapseMode="parallax" />
+        <variable
+            name="title"
+            type="String" />
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:title="TEST" />
+        <variable
+            name="avatarURL"
+            type="String" />
 
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-    </com.google.android.material.appbar.AppBarLayout>
+        <variable
+            name="isShow"
+            type="Boolean" />
 
+    </data>
 
-    <com.airbnb.epoxy.EpoxyRecyclerView
-        android:id="@+id/contributorInfoRecyclerView"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:overScrollMode="never"
-        android:scrollbars="vertical"
-        android:verticalScrollbarPosition="defaultPosition"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+        android:background="@android:color/white"
+        android:transitionName="@{transitionName}">
 
-    <ProgressBar
-        android:id="@+id/progressBarDetail"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_marginTop="36dp"
-        android:layout_gravity="center|top"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        android:layout_height="wrap_content" />
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:minHeight="?attr/actionBarSize"
+                app:contentScrim="?attr/colorPrimary"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+                app:toolbarId="@+id/toolbar">
+
+                <ImageView
+                    android:id="@+id/contributorLgImg"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:adjustViewBounds="true"
+                    app:imgURL="@{avatarURL}"
+                    android:background="@android:color/white"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/sym_def_app_icon"
+                    app:layout_collapseMode="parallax" />
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin"
+                    app:title="@{title}" />
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.airbnb.epoxy.EpoxyRecyclerView
+            android:id="@+id/contributorInfoRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            android:scrollbars="vertical"
+            android:verticalScrollbarPosition="defaultPosition"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+        <ProgressBar
+            android:id="@+id/progressBarDetail"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:visibleGone="@{isShow}"
+            android:layout_gravity="center|top"
+            android:layout_marginTop="36dp"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</layout>

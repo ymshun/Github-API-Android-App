@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.githubapikotlinapp.fragments.HomeFragment"
+        android:name="com.example.githubapikotlinapp.view.ui.fragments.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -18,11 +18,11 @@
     </fragment>
     <fragment
         android:id="@+id/contributorInfoFragment"
-        android:name="com.example.githubapikotlinapp.fragments.ContributorInfoFragment"
+        android:name="com.example.githubapikotlinapp.view.ui.fragments.ContributorInfoFragment"
         android:label="ContributorInfoFragment"
         tools:layout="@layout/fragment_contributor_info">
         <argument android:name="contributorInfo"
-            app:argType="com.example.githubapikotlinapp.fragments.ContributorData" />
+            app:argType="com.example.githubapikotlinapp.service.model.Contributor" />
         <argument
             android:name="transitionNames"
             app:argType="string" />
